@@ -32,7 +32,11 @@ newData['AddressType'] = None
 #   Separamos el dataframe en filas
 
 for index, row in df.iterrows():
-    if (row['CrimeId']> 160954249):
+    if (row['CrimeId']> 0.160954249):
+
+        #   Booleano para decidir si añadimos columna
+        shouldAdd = 1
+
         #   Leemos la información anterior y la almacenamos en una variable temporal
         crimeId = row['CrimeId']
         originalCrimeType = row['OriginalCrimeTypeName']
@@ -50,8 +54,33 @@ for index, row in df.iterrows():
         if (hora != hora2):
             print(row['CrimeId'], "Tiene diferentes horas...")
 
-        newRow = pd.Series([crimeId, originalCrimeType, disposition, address, city, addressType], index = newData.columns )
-        newData = newData.append(newRow, ignore_index = True)
+
+
+
+        #   Comprobaciones referentes a la disposición
+        if (len(disposition) !=3): # disposition == 'Not recorded'
+            shouldAdd = 0
+
+        #   Comprobaciones refentes a la Address
+        errorWithBlock = address.find('Blk')
+        if (errorWithBlock != -1):
+            #   Pasamos de blk -> block
+            address = address[:(errorWithBlock + 2)] + 'oc' + address[(errorWithBlock + 2):]
+            if ('/' in address):
+                addressType = 'Intersection'
+                print(address, addressType)
+            else:
+                addressType = 'Premise Address'
+           
+
+        #   Comprobaciones referentes al addresstype
+        if (addressType == 'Geo-Override'):
+            pass
+
+        #   Añadimos la fila si corresponde
+        if (shouldAdd == 1):
+            newRow = pd.Series([crimeId, originalCrimeType, disposition, address, city, addressType], index = newData.columns )
+            newData = newData.append(newRow, ignore_index = True)
 
 print(newData)
 
