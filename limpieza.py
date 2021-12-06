@@ -25,7 +25,6 @@ newData = pd.DataFrame()
 newData['CrimeId'] = None
 newData['OriginalCrimeTypeName'] = None
 newData['Disposition'] = None
-newData['Disposition'] = None
 newData['Address'] = None
 newData['City'] = None
 newData['AddressType'] = None
@@ -33,15 +32,28 @@ newData['AddressType'] = None
 #   Separamos el dataframe en filas
 
 for index, row in df.iterrows():
-    if (row['CrimeId']> 0.160954249):
-        #   Debemos quitar la repetición de columnas suprimiendo CallDataTime, aunque estaría bien comprobar si todos los datos son iguales
+    if (row['CrimeId']> 160954249):
+        #   Leemos la información anterior y la almacenamos en una variable temporal
+        crimeId = row['CrimeId']
+        originalCrimeType = row['OriginalCrimeTypeName']
+        disposition = row['Disposition']
+        address = row['Address']
+        city = row['City']
+        addressType = row['AddressType']
 
+
+        #   Debemos quitar la repetición de columnas suprimiendo CallDataTime, aunque estaría bien comprobar si todos los datos son iguales
         [fecha,hora] = row['CallDateTime'].split('T')
         if (hora[0] == '0'):
             hora = hora[1:]
         hora2 = row['CallTime'] + ':00'
         if (hora != hora2):
             print(row['CrimeId'], "Tiene diferentes horas...")
+
+        newRow = pd.Series([crimeId, originalCrimeType, disposition, address, city, addressType], index = newData.columns )
+        newData = newData.append(newRow, ignore_index = True)
+
+print(newData)
 
     #row.to_csv('../output.csv', mode='a', index=False)
 
