@@ -79,6 +79,8 @@ for index, row in df.iterrows(): # De esta manera se abrirá como un objeto
         hora2 = hour + ':00'
         if (hora != hora2):
 
+            shouldAdd = 10
+
             # Comprobamos cual de las dos es más similar a la anterior
             print(crimeId, "Tiene diferentes horas...")
             dif1 = convertirANuemero( hora.split(':') ) - horaPrevia
@@ -87,18 +89,28 @@ for index, row in df.iterrows(): # De esta manera se abrirá como un objeto
             # Comparamos las diferencias en valor absoluto (equivalentemente cuadrados)
             if dif2**2 < dif1**2:
                 hora = hora2
+                dif1 = dif2
+        
 
         fecha2 = date.split('T')[0]
         if (fecha != fecha2):
 
             # Si tienen diferentes fechas separamos año mes y dia y operamos igual que la hora
             print(crimeId, fecha2, fecha, "Tiene diferentes fechas")
-            dif1 = convertirANuemero( fecha.split('-') ) - fechaPrevia
-            dif2 = convertirANuemero( fecha2.split('-') ) - fechaPrevia
+            difF1 = convertirANuemero( fecha.split('-') ) - fechaPrevia
+            difF2 = convertirANuemero( fecha2.split('-') ) - fechaPrevia
 
             if dif2**2 < dif1**2:
                 fecha = fecha2
+                dif1 = dif2
 
+            shouldAdd = 10
+
+        # Ajustamos los valores previos
+        horaPrevia = convertirANuemero( hora.split(':') )
+        fechaPrevia = convertirANuemero( fecha.split('-') )
+        
+        # Construimos la nueva fecha
         fullDate = str(fecha) +"T"+ str(hora)
 
 
@@ -126,6 +138,10 @@ for index, row in df.iterrows(): # De esta manera se abrirá como un objeto
         if (shouldAdd == 1):
             newRow = pd.Series([crimeId, crimeType, fullDate, disposition, address, city, addressType], index = newData.columns )
             newData = newData.append(newRow, ignore_index = True)
+
+        if (shouldAdd == 10):
+            print(crimeId, hora2, hora, horaPrevia)
+            print(crimeId, fecha2, fecha, fechaPrevia)
 
 
 tiempoEdicion = time.time() - time1
