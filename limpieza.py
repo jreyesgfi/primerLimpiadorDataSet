@@ -1,11 +1,14 @@
 import pandas as pd
 from pandasql import sqldf
+import time
 
 
-
+time1 = time.time()
 pd.options.display.max_rows = 10
 df = pd.read_csv('../data_act_01.csv', sep = ';')
 print(df)
+tiempoLectura = time.time() - time1
+print("El tiempo de lectura ha sido {:.5f} seg".format(tiempoLectura))
 
 
 #print(df)
@@ -30,29 +33,52 @@ newData['City'] = None
 newData['AddressType'] = None
 
 #   Separamos el dataframe en filas
+time1 = time.time()
 
-for index, row in df.iterrows():
+#   Almacenamos la fecha previa para asegurarnos que van en orden
+fechaPrevia = [2016,3,30]
+horaPrevia = [18,42]
+
+for index, row in df.iterrows(): # De esta manera se abrirá como un objeto
+
     if (row['CrimeId']> 0.160954249):
 
         #   Booleano para decidir si añadimos columna
         shouldAdd = 1
 
-        #   Leemos la información anterior y la almacenamos en una variable temporal
-        crimeId = row['CrimeId']
-        originalCrimeType = row['OriginalCrimeTypeName']
+        crimeId = row['CrimeId'] 
+        crimeType = row['OriginalCrimeTypeName']
+        date = row['OffenseDate']
+        hour = row['CallTime']
+        fullDate = row['CallDateTime']
         disposition = row['Disposition']
         address = row['Address']
         city = row['City']
+        state = row['State']
+        #   Suprimimos el id de la agencia puesto que es constante para la muestra
         addressType = row['AddressType']
 
 
+        #   Comprobaciones referentes al tipo de crimen
+        if len(crimeType) < 4:
+            shouldAdd = 0
+
         #   Debemos quitar la repetición de columnas suprimiendo CallDataTime, aunque estaría bien comprobar si todos los datos son iguales
-        [fecha,hora] = row['CallDateTime'].split('T')
+        [fecha,hora] = fullDate.split('T')
         if (hora[0] == '0'):
             hora = hora[1:]
-        hora2 = row['CallTime'] + ':00'
+
+        hora2 = hour + ':00'
         if (hora != hora2):
-            print(row['CrimeId'], "Tiene diferentes horas...")
+
+            # Comprobamos cual de las dos es más similar a la anterior
+            print(crimeId, "Tiene diferentes horas...")
+
+        fecha2 = date.split('T')[0]
+        if (fecha != fecha2):
+
+            # Si tienen diferentes fechas separamos año mes y dia y operamos igual que la hora
+            print(crimeId, fecha2, fecha, "Tiene diferentes fechas")
 
 
 
@@ -79,10 +105,13 @@ for index, row in df.iterrows():
 
         #   Añadimos la fila si corresponde
         if (shouldAdd == 1):
-            newRow = pd.Series([crimeId, originalCrimeType, disposition, address, city, addressType], index = newData.columns )
+            newRow = pd.Series([crimeId, crimeType, disposition, address, city, addressType], index = newData.columns )
             newData = newData.append(newRow, ignore_index = True)
 
-print(newData)
+
+tiempoEdicion = time.time() - time1
+print("El tiempo de edición ha sido {:.5f} seg".format(tiempoEdicion))
+
 
     #row.to_csv('../output.csv', mode='a', index=False)
 
