@@ -1,13 +1,7 @@
 import pandas as pd
 from pandasql import sqldf
 import time
-
-
-def convertirANuemero(array):
-    numero = ""
-    for elemento in array:
-        numero += str(elemento)
-    return int(numero)
+import util
 
 
 time1 = time.time()
@@ -72,47 +66,8 @@ for index, row in df.iterrows(): # De esta manera se abrirá como un objeto
             shouldAdd = 0
 
         #   Debemos quitar la repetición de columnas suprimiendo CallDataTime, aunque estaría bien comprobar si todos los datos son iguales
-        [fecha,hora] = fullDate.split('T')
-        if (hora[0] == '0'):
-            hora = hora[1:]
-
-        hora2 = hour + ':00'
-        if (hora != hora2):
-
-            shouldAdd = 10
-
-            # Comprobamos cual de las dos es más similar a la anterior
-            print(crimeId, "Tiene diferentes horas...")
-            dif1 = convertirANuemero( hora.split(':') ) - horaPrevia
-            dif2 = convertirANuemero( hora2.split(':') ) - horaPrevia
-
-            # Comparamos las diferencias en valor absoluto (equivalentemente cuadrados)
-            if dif2**2 < dif1**2:
-                hora = hora2
-                dif1 = dif2
-        
-
-        fecha2 = date.split('T')[0]
-        if (fecha != fecha2):
-
-            # Si tienen diferentes fechas separamos año mes y dia y operamos igual que la hora
-            print(crimeId, fecha2, fecha, "Tiene diferentes fechas")
-            difF1 = convertirANuemero( fecha.split('-') ) - fechaPrevia
-            difF2 = convertirANuemero( fecha2.split('-') ) - fechaPrevia
-
-            if dif2**2 < dif1**2:
-                fecha = fecha2
-                dif1 = dif2
-
-            shouldAdd = 10
-
-        # Ajustamos los valores previos
-        horaPrevia = convertirANuemero( hora.split(':') )
-        fechaPrevia = convertirANuemero( fecha.split('-') )
-        
-        # Construimos la nueva fecha
-        fullDate = str(fecha) +"T"+ str(hora)
-
+        #   Comprobaciones respecto a la fecha
+        [fullDate,horaPrevia,fechaPrevia] = util.comprobacionFecha(fullDate,hour,date,horaPrevia,fechaPrevia)
 
         #   Comprobaciones referentes a la disposición
         if (len(disposition) !=3): # disposition == 'Not recorded'
@@ -138,10 +93,6 @@ for index, row in df.iterrows(): # De esta manera se abrirá como un objeto
         if (shouldAdd == 1):
             newRow = pd.Series([crimeId, crimeType, fullDate, disposition, address, city, addressType], index = newData.columns )
             newData = newData.append(newRow, ignore_index = True)
-
-        if (shouldAdd == 10):
-            print(crimeId, hora2, hora, horaPrevia)
-            print(crimeId, fecha2, fecha, fechaPrevia)
 
 
 tiempoEdicion = time.time() - time1
