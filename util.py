@@ -4,7 +4,48 @@ def convertirANuemero(array):
         numero += str(elemento)
     return int(numero)
 
+def incrementarValorKey(dic,key):
+    dic.update( {key: ( (dic.get(key) or 0) +1)} )
 
+
+
+
+
+def comprobacionTipoCrimen(crimeType, listaCrimenes):
+
+    #   Comprobamos que su tamaño sea mayor de 3, con esto aseguramos obviar los id numéricos de 3 dígitos           
+    if len(crimeType) > 3:
+        #   Comprobamos que no contenga ningún número pues solo dan información no válida
+        for i in range(9):
+            if str(i) in crimeType:
+                return None
+
+        #   Otros resultados incoherentes detectados al examinar la lista manualmente
+        if ('Ll' in crimeType):
+            return None
+
+        #   Quitamos los caracteres especiales
+        crimeType = crimeType.replace(".", "")
+        crimeType = crimeType.replace("*", "")
+        crimeType = crimeType.replace("`", "")
+        crimeType = crimeType.replace("H&r ","")    # Este es para homogeneizar resultados
+
+        #   Capitalizamos
+        crimeType = crimeType.capitalize()
+
+        #   Por último algunos errores detectados a ojo
+        if 'Viol' in crimeType:
+            if 'Traf' in crimeType:
+                crimeType = 'Traf Violation'
+            else:
+                crimeType = 'Ro Violation'
+
+        #   Creamos la lista de crimenes para visualizar si hay erratas
+        incrementarValorKey(listaCrimenes,crimeType)
+        return crimeType
+
+    #   Si no, no lo añadimos
+    return None
 
 def comprobacionFecha(fullDate,hour,date,horaPrevia,fechaPrevia):
 
@@ -64,7 +105,7 @@ def comprobacionLugar(address, addressType,):
 
     #   Si hay un fallo en la escritura le atribuimos automáticamente la etiqueta
     if (addressType not in tiposAddressPermitidos):
-        print(address, addressType)
+        # print(address, addressType)
         cambiarAddress = True
 
     #   Comprobamos que cuadren las etiqutas respecto a la condición de intersección
@@ -78,7 +119,7 @@ def comprobacionLugar(address, addressType,):
     if cambiarAddress == True:
         if ('/' in address):
                 addressType = 'Intersection'
-                print(address, addressType)
+                # print(address, addressType)
         else:
             addressType = 'Premise Address'
 

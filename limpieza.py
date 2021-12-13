@@ -41,6 +41,9 @@ time1 = time.time()
 fechaPrevia = 20160330
 horaPrevia = 1842
 
+#   Almacenamos la lista de tipos de crimen
+listaCrimenes = {}
+
 for index, row in df.iterrows(): # De esta manera se abrirá como un objeto
 
     if (row['CrimeId']> 0.160954249):
@@ -62,7 +65,8 @@ for index, row in df.iterrows(): # De esta manera se abrirá como un objeto
 
 
         #   Comprobaciones referentes al tipo de crimen
-        if len(crimeType) < 4:
+        crimeType = util.comprobacionTipoCrimen(crimeType,listaCrimenes)
+        if crimeType == None:
             shouldAdd = 0
 
         #   Debemos quitar la repetición de columnas suprimiendo CallDataTime, aunque estaría bien comprobar si todos los datos son iguales
@@ -84,6 +88,7 @@ for index, row in df.iterrows(): # De esta manera se abrirá como un objeto
             newData = newData.append(newRow, ignore_index = True)
 
 
+print(sorted(listaCrimenes.items(), key=lambda x: x[1], reverse=True) )
 tiempoEdicion = time.time() - time1
 print("El tiempo de edición ha sido {:.5f} seg".format(tiempoEdicion))
 
