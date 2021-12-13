@@ -3,6 +3,13 @@ from pandasql import sqldf
 import time
 
 
+def convertirANuemero(array):
+    numero = ""
+    for elemento in array:
+        numero += str(elemento)
+    return int(numero)
+
+
 time1 = time.time()
 pd.options.display.max_rows = 10
 df = pd.read_csv('../data_act_01.csv', sep = ';')
@@ -27,6 +34,7 @@ print("El tiempo de lectura ha sido {:.5f} seg".format(tiempoLectura))
 newData = pd.DataFrame()
 newData['CrimeId'] = None
 newData['OriginalCrimeTypeName'] = None
+newData['FullDate'] = None
 newData['Disposition'] = None
 newData['Address'] = None
 newData['City'] = None
@@ -36,8 +44,8 @@ newData['AddressType'] = None
 time1 = time.time()
 
 #   Almacenamos la fecha previa para asegurarnos que van en orden
-fechaPrevia = [2016,3,30]
-horaPrevia = [18,42]
+fechaPrevia = 20160330
+horaPrevia = 1842
 
 for index, row in df.iterrows(): # De esta manera se abrirá como un objeto
 
@@ -73,14 +81,25 @@ for index, row in df.iterrows(): # De esta manera se abrirá como un objeto
 
             # Comprobamos cual de las dos es más similar a la anterior
             print(crimeId, "Tiene diferentes horas...")
+            dif1 = convertirANuemero( hora.split(':') ) - horaPrevia
+            dif2 = convertirANuemero( hora2.split(':') ) - horaPrevia
+
+            # Comparamos las diferencias en valor absoluto (equivalentemente cuadrados)
+            if dif2**2 < dif1**2:
+                hora = hora2
 
         fecha2 = date.split('T')[0]
         if (fecha != fecha2):
 
             # Si tienen diferentes fechas separamos año mes y dia y operamos igual que la hora
             print(crimeId, fecha2, fecha, "Tiene diferentes fechas")
+            dif1 = convertirANuemero( fecha.split('-') ) - fechaPrevia
+            dif2 = convertirANuemero( fecha2.split('-') ) - fechaPrevia
 
+            if dif2**2 < dif1**2:
+                fecha = fecha2
 
+        fullDate = str(fecha) +"T"+ str(hora)
 
 
         #   Comprobaciones referentes a la disposición
@@ -105,7 +124,7 @@ for index, row in df.iterrows(): # De esta manera se abrirá como un objeto
 
         #   Añadimos la fila si corresponde
         if (shouldAdd == 1):
-            newRow = pd.Series([crimeId, crimeType, disposition, address, city, addressType], index = newData.columns )
+            newRow = pd.Series([crimeId, crimeType, fullDate, disposition, address, city, addressType], index = newData.columns )
             newData = newData.append(newRow, ignore_index = True)
 
 
