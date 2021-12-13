@@ -74,20 +74,9 @@ for index, row in df.iterrows(): # De esta manera se abrirá como un objeto
             shouldAdd = 0
 
         #   Comprobaciones refentes a la Address
-        errorWithBlock = address.find('Blk')
-        if (errorWithBlock != -1):
-            #   Pasamos de blk -> block
-            address = address[:(errorWithBlock + 2)] + 'oc' + address[(errorWithBlock + 2):]
-            if ('/' in address):
-                addressType = 'Intersection'
-                print(address, addressType)
-            else:
-                addressType = 'Premise Address'
-           
+        [address,addressType] = util.comprobacionLugar(address,addressType)
+        
 
-        #   Comprobaciones referentes al addresstype
-        if (addressType == 'Geo-Override'):
-            pass
 
         #   Añadimos la fila si corresponde
         if (shouldAdd == 1):

@@ -8,6 +8,7 @@ def convertirANuemero(array):
 
 def comprobacionFecha(fullDate,hour,date,horaPrevia,fechaPrevia):
 
+    # Estructuramos hora y fecha
     [fecha,hora] = fullDate.split('T')
     if (hora[0] == '0'):
         hora = hora[1:]
@@ -48,3 +49,39 @@ def comprobacionFecha(fullDate,hour,date,horaPrevia,fechaPrevia):
     fullDate = str(fecha) +"T"+ str(hora)
 
     return [fullDate,horaPrevia,fechaPrevia]
+
+
+def comprobacionLugar(address, addressType,):
+    errorWithBlock = address.find('Blk')
+    cambiarAddress = False
+    if (errorWithBlock != -1):
+        #   Pasamos de blk -> block
+        address = address[:(errorWithBlock + 2)] + 'oc' + address[(errorWithBlock + 2):]
+        cambiarAddress = True
+        
+    #   Comprobaciones referentes al addresstype
+    tiposAddressPermitidos = ['Premise Address', 'Intersection', 'Geo-Override','Common Location','']
+
+    #   Si hay un fallo en la escritura le atribuimos automáticamente la etiqueta
+    if (addressType not in tiposAddressPermitidos):
+        print(address, addressType)
+        cambiarAddress = True
+
+    #   Comprobamos que cuadren las etiqutas respecto a la condición de intersección
+    if '/' in address:
+        addressType = 'Intersection'
+    else:
+        if (addressType == 'Intersection'):
+            cambiarAddress = True
+
+    #   Si hay que ajustar el addresstype lo hacemos
+    if cambiarAddress == True:
+        if ('/' in address):
+                addressType = 'Intersection'
+                print(address, addressType)
+        else:
+            addressType = 'Premise Address'
+
+    #   Se debería comprobar si los geo-override son sitios reales
+    return [address,addressType]
+    
