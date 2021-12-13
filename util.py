@@ -92,6 +92,16 @@ def comprobacionFecha(fullDate,hour,date,horaPrevia,fechaPrevia):
     return [fullDate,horaPrevia,fechaPrevia]
 
 
+
+def comprobacionDisposicion(disposition, listaDisposiciones):
+    if (len(disposition) !=3): # disposition == 'Not recorded'
+            return None
+    
+    incrementarValorKey(listaDisposiciones,disposition)
+    return disposition
+    
+
+
 def comprobacionLugar(address, addressType,):
     errorWithBlock = address.find('Blk')
     cambiarAddress = False
@@ -125,4 +135,6 @@ def comprobacionLugar(address, addressType,):
 
     #   Se debería comprobar si los geo-override son sitios reales
     return [address,addressType]
-    
+
+def comprobacionCity(ciudad, listaCiudades):
+        incrementarValorKey(listaCiudades,ciudad)
