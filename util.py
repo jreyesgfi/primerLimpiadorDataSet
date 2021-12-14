@@ -47,7 +47,7 @@ def comprobacionTipoCrimen(crimeType, listaCrimenes):
     #   Si no, no lo añadimos
     return None
 
-def comprobacionFecha(fullDate,hour,date,horaPrevia,fechaPrevia):
+def comprobacionFecha(fullDate,hour,date,horaPrevia,fechaPrevia,crimeId):
 
     # Estructuramos hora y fecha
     [fecha,hora] = fullDate.split('T')
@@ -55,6 +55,7 @@ def comprobacionFecha(fullDate,hour,date,horaPrevia,fechaPrevia):
         hora = hora[1:]
 
     hora2 = hour + ':00'
+    
     if (hora != hora2):
         #print(hora, hora2, 'Anteriores horas ')
 
@@ -70,12 +71,17 @@ def comprobacionFecha(fullDate,hour,date,horaPrevia,fechaPrevia):
         
 
     fecha2 = date.split('T')[0]
+
+    # Comprobamos si hace más de un día del anterior registro 
+    dif1 = convertirANuemero( fecha.split('-') ) - fechaPrevia
+    if dif1 < -1 and fechaPrevia%100!=1:
+        return None
+
     if (fecha != fecha2):
 
         #print(fecha, fecha2, 'Anteriores fechas ')
 
         # Si tienen diferentes fechas separamos año mes y dia y operamos igual que la hora
-        dif1 = convertirANuemero( fecha.split('-') ) - fechaPrevia
         dif2 = convertirANuemero( fecha2.split('-') ) - fechaPrevia
 
         if dif2**2 < dif1**2:
@@ -134,7 +140,14 @@ def comprobacionLugar(address, addressType,):
             addressType = 'Premise Address'
 
     #   Se debería comprobar si los geo-override son sitios reales
+    if addressType == 'Geo-Override':
+        return None
     return [address,addressType]
 
 def comprobacionCity(ciudad, listaCiudades):
-        incrementarValorKey(listaCiudades,ciudad)
+        if ciudad and len(str(ciudad)) > 4:
+            if 'SAN FR' in ciudad:
+                ciudad = 'San Francisco'
+            incrementarValorKey(listaCiudades,ciudad)
+            return ciudad
+        return None

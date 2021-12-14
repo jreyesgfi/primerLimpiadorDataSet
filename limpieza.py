@@ -67,21 +67,29 @@ for index, row in df.iterrows(): # De esta manera se abrirá como un objeto
             shouldAdd = 0
 
         #   Comprobaciones respecto a la fecha
-        [fullDate,horaPrevia,fechaPrevia] = util.comprobacionFecha(fullDate,hour,date,horaPrevia,fechaPrevia)
+        array = util.comprobacionFecha(fullDate,hour,date,horaPrevia,fechaPrevia, crimeId)
+        if array:
+            [fullDate,horaPrevia,fechaPrevia] = array
+        else:
+            shouldAdd = 0
         #   Debemos quitar la repetición de columnas suprimiendo CallDataTime
 
         #   Comprobaciones referentes a la disposición
         disposition = util.comprobacionDisposicion(disposition,listaDisposiciones)        
 
         #   Comprobaciones refentes a la Address
-        [address,addressType] = util.comprobacionLugar(address,addressType)
+        [address,addressType] = util.comprobacionLugar(address,addressType) or [None,None]
+        if not address:
+            shouldAdd = 0
 
         #   Comprobaciones referentes a la ciudad
-        util.comprobacionCity(city,listaCiudades)        
+        ciudad = util.comprobacionCity(city,listaCiudades)
+        if not ciudad:
+            shouldAdd = 0
 
         #   Añadimos la fila si corresponde como nueva entrada del diccionario marcada por su id
         if (shouldAdd == 1):
-            newRow = {'CrimeId':crimeId, 'CallDateTime': fullDate, 'Disposition':disposition, 'Address': address, 'AddressType':addressType}
+            newRow = {'CallDateTime': fullDate, 'Disposition':disposition, 'Address': address, 'City': ciudad, 'AddressType':addressType}
             dataCrimenesJSON[str(crimeId)] = newRow
 
         
@@ -89,6 +97,11 @@ for index, row in df.iterrows(): # De esta manera se abrirá como un objeto
 print(sorted(listaCrimenes.items(), key=lambda x: x[1], reverse=True) )
 print(sorted(listaDisposiciones.items(), key=lambda x: x[1], reverse=True) )
 print(sorted(listaCiudades.items(), key=lambda x: x[1], reverse=True) )
+
+#   Salvamos el json final en un documento auxiliar
+f = open("salvadoCrimenes.txt","w")
+f.write(str(dataCrimenesJSON))
+f.close()
 
 
 tiempoEdicion = time.time() - time1
